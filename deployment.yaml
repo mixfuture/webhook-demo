@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: webhook
+  name: webhook
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webhook
+  template:
+    metadata:
+      labels:
+        app: webhook
+    spec:
+      nodeName: node4
+      containers:
+      - name: webhook
+        image: webhook:1.0
+        imagePullPolicy: IfNotPresent
+        command: ["webhook"]
+        args:  ["-tls-cert-file=/etc/kubernetes/pki/ca.pem", "-tls-private-key-file=/etc/kubernetes/pki/ca-key.pem"]
+        volumeMounts:
+          - mountPath: "/etc/kubernetes/pki"
+            name: pki
+      volumes:
+        - name: pki
+          hostPath:
+            path: /data/cloud/pki
